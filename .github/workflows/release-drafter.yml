@@ -1,0 +1,17 @@
+name: Release Drafter
+on:
+  push:
+    branches: [ "main" ]
+permissions:
+  id-token: write
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  releaseDrafter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run release-drafter
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,103 @@
+#This file contains all available configuration options
+# with their default values.
+
+# options for analysis running
+run:
+  concurrency: 1
+  deadline: 5m
+  issues-exit-code: 1
+  tests: false
+  build-tags:
+    - latest
+  skip-dirs:
+    - doc
+    - vendor
+    - testdata
+    - internal/testfuncs
+    - tools
+    - build
+    - log
+  skip-files:
+    - golangci.yml
+    - lib/bad.go
+
+output:
+  format: colored-line-number,checkstyle:golangci-report.xml
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+  funlen:
+    statements: 70
+    lines: 70
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 1
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: github.com/ivancorrales/mapify
+  gocyclo:
+    min-complexity: 25
+  gocognit:
+    min-complexity: 55
+  maligned:
+    suggest-new: true
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  depguard:
+    include-go-root: false
+    packages:
+      - github.com/davecgh/go-spew/spew
+  misspell:
+    locale: US
+  lll:
+    line-length: 120
+    tab-width: 1
+  unused:
+    check-exported: false
+  unparam:
+    algo: cha
+    check-exported: false
+  nakedret:
+    max-func-lines: 50
+  prealloc:
+    simple: true
+    range-loops: true # Report preallocation suggestions on range loops, true by default
+    for-loops: false # Report preallocation suggestions on for loops, false by default
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/ivancorrales/mapify/*
+issues:
+  exclude:
+    - "not declared by package utf8"
+    - "unicode/utf8/utf8.go"
+
+linters:
+  enable-all: true
+  disable:
+    - deadcode
+    - maligned
+    - varcheck
+    - ifshort
+    - golint
+    - interfacer
+    - exhaustivestruct
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - godox
+    - ireturn
+    - goerr113
+    - gochecknoglobals
+    - gochecknoinits
+    - wsl
+    - nlreturn
+  fast: true
