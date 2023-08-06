@@ -13,7 +13,7 @@ The `swiss knife` to deal with the hassle of `unstructured data`.
 
 This module is already `ready-for-production`.
 
-## Pathify  Highlights
+## Mapify  Highlights
 
 * **Easy integration**: It's straightforward to be integrated with your current developments. 
 

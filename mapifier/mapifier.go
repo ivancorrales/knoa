@@ -30,14 +30,14 @@ type mapifier[T Type] struct {
 	content   T
 }
 
-type PathifyOpt func(sanitizer *builder)
+type MapifyOpt func(sanitizer *builder)
 
 type builder struct {
 	strictMode  bool
 	attrNameFmt string
 }
 
-func New[T Type](options ...PathifyOpt) Mapifier[T] {
+func New[T Type](options ...MapifyOpt) Mapifier[T] {
 	var content T
 	return Load[T](content, options...)
 }
@@ -85,7 +85,7 @@ func convert[T Type](input T) any {
 	return input
 }
 
-func Load[T Type](content T, options ...PathifyOpt) Mapifier[T] {
+func Load[T Type](content T, options ...MapifyOpt) Mapifier[T] {
 	b := &builder{
 		strictMode:  false,
 		attrNameFmt: internal.DefAttributeNameFormat,
