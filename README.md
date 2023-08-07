@@ -43,7 +43,7 @@ require (
 Check the following examples
 
 
-** Create and modify an array dynamically**
+**Create and modify an array dynamically**
 
 ```go
 k := knoa.Array().Set("[1]", []string{"red", "blue", "green"}, "[2].firstname", "John")
@@ -65,7 +65,7 @@ fmt.Println(k.String())
 // [{"enabled":false,"fullName":"Senior Developer","roleLevel":3},["red","blue","green"],{"firstname":"Jane"}]
 ```
 
-** Create and modify a map dynamically**
+**Create and modify a map dynamically**
 
 ```go
 k := knoa.Map().Set("firstname", "John", "age", 20)
@@ -99,20 +99,49 @@ type Person struct {
     Age       int    `struct:"age"`
 }
 
-...
 
-var output []Person
-knoa.Load[[]any]([]any{
-        Person{
-            Firstname: "Jane",
-            Age:       20,
-        },
-    }).
-	Set("[1]", Person{
+
+k:= knoa.Load[[]any]([]any{
+    Person{
+        Firstname: "Jane",
+        Age:       20,
+	},
+})
+k.Set("[1]", Person{
         Firstname: "Bob",
         Age:       23,
-    }, "[2].firstname", "John").
-	To(&output)
+    },"[2].firstname", "John")
+
+var output []Person
+k.To(&output)
+```
+
+**Decode an unstructured data into a struct**
+```go
+
+type Person struct {
+    Firstname string   `structs:"firstname"`
+    Age       int      `structs:"age"`
+    Siblings  []Person `structs:"siblings,omitempty"`
+}
+
+k := knoa.Map().Set("firstname", "John", "age", 20)
+	
+k.Set("siblings", []Person{
+    {
+	    Firstname: "Tim",
+		Age:       29,
+	}, 
+	{
+	    Firstname: "Bob",
+		Age:       40,
+	},
+})
+
+k.Set("age", 23, "siblings[1].age", 39)
+
+var person Person
+k.To(&person)
 ```
 
 

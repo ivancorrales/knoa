@@ -32,7 +32,11 @@ type Person struct {
 }
 
 func (p Person) String() string {
-	return fmt.Sprintf("%s -> %d", p.Firstname, p.Age)
+	str := fmt.Sprintf("%s -> %d", p.Firstname, p.Age)
+	if p.Siblings != nil {
+		return fmt.Sprintf("%s siblings[%s]", str, p.Siblings)
+	}
+	return str
 }
 
 func ExampleArrayOfObjects() {
@@ -75,8 +79,13 @@ func ExampleMap() {
 	fmt.Println(k.String())
 	k.Set("age", 23, "siblings[1].age", 39)
 	fmt.Println(k.String())
+	var person Person
+	k.To(&person)
+	fmt.Println(person)
+
 	// Output:
 	// {"age":20,"firstname":"John"}
 	// {"age":20,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
 	// {"age":23,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":39,"firstname":"Bob"}]}
+	// John -> 23 siblings[[Tim -> 29 Bob -> 39]]
 }

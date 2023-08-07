@@ -2,9 +2,10 @@ package internal
 
 import (
 	"fmt"
-	"github.com/fatih/structs"
 	"reflect"
 	"strconv"
+
+	"github.com/fatih/structs"
 )
 
 type Mutator struct {
@@ -45,7 +46,6 @@ func (m *Mutator) applyValue(in any) any {
 			if val.Index(i).Kind() == reflect.Struct {
 				out[i] = structs.Map(val.Index(i).Interface())
 			} else {
-
 				out[i] = val.Index(i).Interface()
 			}
 		}
