@@ -27,16 +27,24 @@ func ExampleArrayStrict() {
 	// invalid Path  '[a]'. Path doesn't match defined format
 }
 
-// Ignore those attributes that don't match the provided format
-func ExampleArrayWithAttributeNameFormat() {
-	out := knoa.Array(mapifier.WithAttributeNameFormat("person-(.*)")).Set("person-firstname", "Jane", "lastname", "Doe").JSON()
+// Create and array and add/modify entries
+func ExampleArrayLoadAndModify() {
+	out := knoa.Load([]any{"Janet", "Tim"}).Set("[0]", "Jane", "[2]", "Tom").JSON()
 	fmt.Println(out)
 	// Output:
-	// {"person-firstname":"Jane"}
+	// ["Jane","Tim","Tom"]
+}
+
+// Set some invalid indexes
+func ExampleArraySetInvalidIndexes() {
+	out := knoa.Array().Set("person-firstname", "Jane", "[2]", true, "lastname", "Doe").JSON()
+	fmt.Println(out)
+	// Output:
+	//[null,null,true]
 }
 
 // Set an array as the value of an attribute
-func ExampleSArraySetSubarrays() {
+func ExampleArraySetSubArrays() {
 	out := knoa.Array().Set("[0]", []string{"Tim", "Janet"}).JSON()
 	fmt.Println(out)
 	// Output:
@@ -44,9 +52,9 @@ func ExampleSArraySetSubarrays() {
 }
 
 // Set values for two-deep level of arrays attributes
-func ExampleSArraySetSubarraysV2() {
+func ExampleArraySetSubArraysV2() {
 	out := knoa.Array().Set("[0][1]", []string{"Tim", "Janet"}).JSON()
 	fmt.Println(out)
 	// Output:
-	// [[],[["Tim","Janet"]]]
+	// [[null,["Tim","Janet"]]]
 }

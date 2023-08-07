@@ -13,6 +13,11 @@ type Mutator struct {
 	value any
 }
 
+func (m *Mutator) IsArray() bool {
+	_, err := strconv.Atoi(m.index)
+	return err == nil || m.index == "*"
+}
+
 func (m *Mutator) Child() *Mutator {
 	return m.child
 }
@@ -109,36 +114,57 @@ func (m *Mutator) ToArray(content []any) []any {
 	content = ensureSizeOfArray(content, m.index)
 
 	index, err := strconv.Atoi(m.index)
-	if err != nil {
+	if err != nil && m.index != "*" {
 		// This means that we should apply a '*'
+		return content
 	}
 	if m.child == nil {
-		if m.value != nil {
+		if m.value != nil && index < len(content) {
 			content[index] = m.applyValue(content[index])
 		}
 		return content
 	}
-
-	c := content[index]
-	switch reflect.ValueOf(c).Kind() {
-	case reflect.Slice, reflect.Array:
+	currentChild := content[index]
+	if m.child.IsArray() {
 		var childContent []any
-		if c == nil {
+		if currentChild == nil {
 			childContent = make([]any, 0)
 		} else {
-			childContent, _ = c.([]any)
+			childContent, _ = currentChild.([]any)
 		}
 		content[index] = m.child.ToArray(childContent)
-	default:
+	} else {
 		var childContent map[string]any
-		if c == nil {
+		if currentChild == nil {
 			childContent = make(map[string]any)
 		} else {
-			childContent, _ = c.(map[string]any)
+			childContent, _ = currentChild.(map[string]any)
 		}
 
 		content[index] = m.child.ToMap(childContent)
 	}
+	/**
+	switch reflect.ValueOf(currentChild).Kind() {
+	case reflect.Slice, reflect.Array:
+		var childContent []any
+		if currentChild == nil {
+			childContent = make([]any, 0)
+		} else {
+			childContent, _ = currentChild.([]any)
+		}
+		content[index] = m.child.ToArray(childContent)
+	default:
+		var childContent map[string]any
+		if currentChild == nil {
+			childContent = make(map[string]any)
+		} else {
+			childContent, _ = currentChild.(map[string]any)
+		}
+
+		content[index] = m.child.ToMap(childContent)
+	}
+
+	**/
 
 	return content
 }

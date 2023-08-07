@@ -49,16 +49,26 @@ func convert[T Type](input T) any {
 		itemsLen := value.Len()
 		output := make([]any, itemsLen)
 		for i := 0; i < itemsLen; i++ {
-			itemValue := reflect.ValueOf(value.Index(i))
+			itemValue := reflect.ValueOf(input).Index(i)
 			switch itemValue.Kind() {
 			case reflect.Slice, reflect.Array:
 				output[i] = convert(itemValue.Interface().([]any))
 			case reflect.Map:
 				output[i] = convert(itemValue.Interface().(map[string]any))
 			case reflect.Struct:
-				v := structs.Map(value.Index(i).Interface())
+				v := structs.Map(itemValue.Interface())
 				output[i] = convert(v)
+			default:
+				if reflect.ValueOf(itemValue.Interface()).Kind() == reflect.Struct {
+					v := structs.Map(itemValue.Interface())
+					output[i] = convert(v)
+				} else {
+					output[i] = itemValue.Interface()
+				}
 			}
+		}
+		if itemsLen == 0 {
+			output = make([]any, 1)
 		}
 		return output
 	case reflect.Struct:

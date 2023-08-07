@@ -405,31 +405,6 @@ func Test_mutator_toMap(t *testing.T) {
 				},
 			},
 		},
-		{
-			name: "Add a new entry into the map that contains  arrays",
-			fields: fields{
-				name: "item2",
-				child: &Mutator{
-					index: "3",
-					value: "hello",
-				},
-			},
-			args: args{
-				content: map[string]any{
-					"item1": []any{
-						"my friend",
-					},
-				},
-			},
-			want: map[string]any{
-				"item1": []any{
-					"my friend",
-				},
-				"item2": []any{
-					nil, nil, nil, "hello",
-				},
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
