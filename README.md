@@ -10,6 +10,13 @@
 The `swiss knife` to deal with the hassle of `unstructured data`.
 
 ```go
+
+type Person struct {
+    Firstname string   `structs:"firstname"`
+    Age       int      `structs:"age"`
+    Siblings  []Person `structs:"siblings,omitempty"`
+}
+
 func main(){
     k := knoa.Map().Set("firstname", "John", "age", 20)
     
