@@ -1,11 +1,11 @@
-[![GitHub Release](https://img.shields.io/github/v/release/ivancorrales/mapify)](https://github.com/ivancorrales/mapify/releases)
-[![Go Reference](https://pkg.go.dev/badge/github.com/ivancorrales/mapify.svg)](https://pkg.go.dev/github.com/ivancorrales/mapify)
-[![go.mod](https://img.shields.io/github/go-mod/go-version/ivancorrales/mapify)](go.mod)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/ivancorrales/mapify)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/ivancorrales/mapify/build.yml?branch=main)](https://github.com/ivancorrales/mapify/actions?query=workflow%3ABuild+branch%3Amain)
-[![CodeQL](https://github.com/ivancorrales/mapify/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/ivancorrales/mapify/actions/workflows/codeql.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/ivancorrales/knoa)](https://github.com/ivancorrales/knoa/releases)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ivancorrales/knoa.svg)](https://pkg.go.dev/github.com/ivancorrales/knoa)
+[![go.mod](https://img.shields.io/github/go-mod/go-version/ivancorrales/knoa)](go.mod)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/ivancorrales/knoa)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/ivancorrales/knoa/build.yml?branch=main)](https://github.com/ivancorrales/knoa/actions?query=workflow%3ABuild+branch%3Amain)
+[![CodeQL](https://github.com/ivancorrales/knoa/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/ivancorrales/knoa/actions/workflows/codeql.yml)
 
-# Mapify
+# Knoa
 
 The `swiss knife` to deal with the hassle of `unstructured data`.
 
@@ -13,7 +13,7 @@ The `swiss knife` to deal with the hassle of `unstructured data`.
 
 This module is already `ready-for-production`.
 
-## Mapify  Highlights
+## Knoa  Highlights
 
 * **Easy integration**: It's straightforward to be integrated with your current developments. 
 
@@ -22,13 +22,13 @@ This module is already `ready-for-production`.
 Use go get to retrieve the library to add it to your GOPATH workspace, or project's Go module dependencies.
 
 ```bash
-go get -u github.com/ivancorrales/mapify
+go get -u github.com/ivancorrales/knoa
 ```
 
 To update the library use go get -u to retrieve the latest version of it.
 
 ```bash
-go get -u github.com/ivancorrales/mapify
+go get -u github.com/ivancorrales/knoa
 ```
 
 You could specify a concrete version of this module as It's shown on the below. Replace x.y.z by the desired version.
@@ -36,7 +36,7 @@ You could specify a concrete version of this module as It's shown on the below. 
 ```bash
 module github.com/<org>/<repository>
 require ( 
-  github.com/ivancorrales/mapify vX.Y.Z
+  github.com/ivancorrales/knoa vX.Y.Z
 )
 ```
 
@@ -57,13 +57,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ivancorrales/mapify"
-	"github.com/ivancorrales/mapify/mapifier"
+	"github.com/ivancorrales/knoa"
+	"github.com/ivancorrales/knoa/mapifier"
 )
 
 // Basic showcase
 func ExampleFromScratch() {
-	out := mapify.Map().Set("firstname", "Jane").JSON()
+	out := knoa.Map().Set("firstname", "Jane").JSON()
 	fmt.Println(out)
 	// Output:
 	// {"firstname":"Jane"}
@@ -76,14 +76,14 @@ func ExampleFromScratchWithStrictModeEnabled() {
 			fmt.Println(r)
 		}
 	}()
-	mapify.Map(mapifier.WithStrictMode(true)).Set("firstname.$", "Jane").JSON()
+	knoa.Map(mapifier.WithStrictMode(true)).Set("firstname.$", "Jane").JSON()
 	// Output:
 	// invalid Path  'firstname.$'. Path doesn't match defined format
 }
 
 // Ignore those attributes that don't match the provided format
 func ExampleFromScratchWithAttributeNameFormat() {
-	out := mapify.Map(mapifier.WithAttributeNameFormat("person-(.*)")).Set("person-firstname", "Jane", "lastname", "Doe").JSON()
+	out := knoa.Map(mapifier.WithAttributeNameFormat("person-(.*)")).Set("person-firstname", "Jane", "lastname", "Doe").JSON()
 	fmt.Println(out)
 	// Output:
 	// {"person-firstname":"Jane"}
@@ -91,7 +91,7 @@ func ExampleFromScratchWithAttributeNameFormat() {
 
 // Set arrays attributes
 func ExampleSetArrayChildren() {
-	out := mapify.Map().Set("firstname", "Jane", "siblings", []string{"Tim", "Janet"}).JSON()
+	out := knoa.Map().Set("firstname", "Jane", "siblings", []string{"Tim", "Janet"}).JSON()
 	fmt.Println(out)
 	// Output:
 	// {"firstname":"Jane","siblings":["Tim","Janet"]}
@@ -99,7 +99,7 @@ func ExampleSetArrayChildren() {
 
 // Set arrays attributes
 func ExampleSetArrayChildrenV2() {
-	out := mapify.Map().Set("firstname", "Jane", "languages.native", []string{"English", "Irish"}, "languages.learning", []string{"Italian"}).JSON()
+	out := knoa.Map().Set("firstname", "Jane", "languages.native", []string{"English", "Irish"}, "languages.learning", []string{"Italian"}).JSON()
 	fmt.Println(out)
 	// Output:
 	// {"firstname":"Jane","languages":{"learning":["Italian"],"native":["English","Irish"]}}
@@ -107,7 +107,7 @@ func ExampleSetArrayChildrenV2() {
 
 // Set several times
 func ExampleMultipleSets() {
-	m := mapify.Map().Set("firstname", "Jane")
+	m := knoa.Map().Set("firstname", "Jane")
 	m = m.Set("lastname", "Doe")
 	m = m.Set("firstname", "Tim")
 	out := m.JSON()
@@ -118,7 +118,7 @@ func ExampleMultipleSets() {
 
 // Set complex structures
 func ExampleSetComplexStructures() {
-	out := mapify.Map().Set("firstname", "Jane", "partner", struct {
+	out := knoa.Map().Set("firstname", "Jane", "partner", struct {
 		Age       int32  `structs:"age"`
 		Firstname string `structs:"firstname"`
 	}{
@@ -131,7 +131,7 @@ func ExampleSetComplexStructures() {
 
 // Set complex structures
 func ExampleSetComplexStructuresAndOverrides() {
-	m := mapify.Map().Set("firstname", "Jane", "partner", struct {
+	m := knoa.Map().Set("firstname", "Jane", "partner", struct {
 		Age       int32  `structs:"age"`
 		Firstname string `structs:"firstname"`
 	}{
@@ -146,7 +146,7 @@ func ExampleSetComplexStructuresAndOverrides() {
 }
 
 func ExampleWithFuncPrefix() {
-	m := mapify.Map().Set("firstname", "Jane", "partner", struct {
+	m := knoa.Map().Set("firstname", "Jane", "partner", struct {
 		Age       int32  `structs:"age"`
 		Firstname string `structs:"firstname"`
 	}{
@@ -161,7 +161,7 @@ func ExampleWithFuncPrefix() {
 }
 
 func ExampleWithPrefix() {
-	m := mapify.Map().Set("firstname", "Jane", "partner", struct {
+	m := knoa.Map().Set("firstname", "Jane", "partner", struct {
 		Age       int32  `structs:"age"`
 		Firstname string `structs:"firstname"`
 	}{
@@ -191,7 +191,7 @@ func ExampleArrayIndexes() {
 			},
 		},
 	}
-	m := mapify.LoadMap(initialValue)
+	m := knoa.LoadMap(initialValue)
 	m = m.Set("siblings[1].age", 20)
 	out := m.JSON()
 	fmt.Println(out)
@@ -200,7 +200,7 @@ func ExampleArrayIndexes() {
 }
 
 func ExampleRootArrayIndexes() {
-	m := mapify.Array()
+	m := knoa.Array()
 	m = m.Set("[1].age", 20)
 	out := m.JSON()
 	fmt.Println(out)
@@ -209,7 +209,7 @@ func ExampleRootArrayIndexes() {
 }
 
 func ExampleRootArrayOfStructsIndexes() {
-	m := mapify.Array()
+	m := knoa.Array()
 	m = m.Set("[1]", struct {
 		Age       int32  `structs:"age"`
 		Firstname string `structs:"firstname"`
@@ -235,7 +235,7 @@ func ExampleRootArrayWithSubArrays() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	m := mapify.LoadArray(inputValues)
+	m := knoa.LoadArray(inputValues)
 
 	m.Set("[0].siblings", []string{
 		"John", "Jane",
@@ -255,7 +255,7 @@ func ExampleRootArrayWithSubArraysAndOverrideTypes() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	m := mapify.LoadArray(inputValues)
+	m := knoa.LoadArray(inputValues)
 
 	m.Set("[0]", []string{
 		"John", "Jane",
@@ -269,6 +269,6 @@ func ExampleRootArrayWithSubArraysAndOverrideTypes() {
 
 ### Contributing
 
-See the [contributing](https://github.com/ivancorrales/mapify/blob/main/CONTRIBUTING.md) documentation.
+See the [contributing](https://github.com/ivancorrales/knoa/blob/main/CONTRIBUTING.md) documentation.
 
 

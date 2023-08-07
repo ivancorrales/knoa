@@ -1,6 +1,6 @@
 package mapifier
 
-import "github.com/ivancorrales/mapify/mapifier/internal"
+import "github.com/ivancorrales/knoa/mapifier/internal"
 
 const (
 	YAML = internal.YAML

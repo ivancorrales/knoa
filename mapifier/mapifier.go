@@ -6,7 +6,7 @@ import (
 
 	"github.com/fatih/structs"
 
-	"github.com/ivancorrales/mapify/mapifier/internal"
+	"github.com/ivancorrales/knoa/mapifier/internal"
 )
 
 type Mapifier[S Type] interface {
@@ -30,14 +30,14 @@ type mapifier[T Type] struct {
 	content   T
 }
 
-type MapifyOpt func(sanitizer *builder)
+type KnoaOpt func(sanitizer *builder)
 
 type builder struct {
 	strictMode  bool
 	attrNameFmt string
 }
 
-func New[T Type](options ...MapifyOpt) Mapifier[T] {
+func New[T Type](options ...KnoaOpt) Mapifier[T] {
 	var content T
 	return Load[T](content, options...)
 }
@@ -85,7 +85,7 @@ func convert[T Type](input T) any {
 	return input
 }
 
-func Load[T Type](content T, options ...MapifyOpt) Mapifier[T] {
+func Load[T Type](content T, options ...KnoaOpt) Mapifier[T] {
 	b := &builder{
 		strictMode:  false,
 		attrNameFmt: internal.DefAttributeNameFormat,

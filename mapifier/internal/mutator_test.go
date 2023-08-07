@@ -437,7 +437,6 @@ func Test_mutator_toMap(t *testing.T) {
 				name:  tt.fields.name,
 				index: tt.fields.index,
 				child: tt.fields.child,
-
 				value: tt.fields.value,
 			}
 			assert.Equalf(t, tt.want, m.ToMap(tt.args.content), "ToMap(%v)", tt.args.content)

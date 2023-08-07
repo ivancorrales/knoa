@@ -40,7 +40,7 @@ linters-settings:
   gofmt:
     simplify: true
   goimports:
-    local-prefixes: github.com/ivancorrales/mapify
+    local-prefixes: github.com/ivancorrales/knoa
   gocyclo:
     min-complexity: 25
   gocognit:
@@ -74,7 +74,7 @@ linters-settings:
     for-loops: false # Report preallocation suggestions on for loops, false by default
   wrapcheck:
     ignorePackageGlobs:
-      - github.com/ivancorrales/mapify/*
+      - github.com/ivancorrales/knoa/*
 issues:
   exclude:
     - "not declared by package utf8"

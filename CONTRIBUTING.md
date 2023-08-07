@@ -3,7 +3,7 @@
 
 This document describes how to contribute to the development of this plugin.
 
-First of all, thanks for wishing to contribute to [mapify] and helping me to provide with this Go SDK opensource community We appreciate the help!
+First of all, thanks for wishing to contribute to [knoa] and helping me to provide with this Go SDK opensource community We appreciate the help!
 
 Ee welcome contributions to them all. In the same way, we encourage you to  discuss the change you wish to make via issue, email, or any other method with the owners of this repository before working on a new feature.
 

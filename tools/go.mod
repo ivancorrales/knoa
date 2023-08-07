@@ -1,4 +1,4 @@
-module github.com/ivancorrales/mapify/build
+module github.com/ivancorrales/knoa/build
 
 go 1.20
 

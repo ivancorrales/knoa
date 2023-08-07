@@ -1,4 +1,4 @@
-ROJECT_NAME := github.com/ivancorrales/mapify
+ROJECT_NAME := github.com/ivancorrales/knoa
 GO_VERSION := $(shell cat .go-version)
 GO  = GOFLAGS=-mod=readonly go
 GO_CMD          ?= go
