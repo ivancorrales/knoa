@@ -82,7 +82,7 @@ func convert[T Type](input T) any {
 				case reflect.Slice, reflect.Array:
 					output[k] = convert(v)
 				case reflect.Map:
-					output[k] = convert(v.(map[string]any))
+					output[k] = convert(v)
 				case reflect.Struct:
 					output[k] = convert(structs.Map(v))
 				default:
