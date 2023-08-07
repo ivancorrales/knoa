@@ -151,4 +151,7 @@ Additionally, we encourege to have a look at folder `examples` to get a better u
 
 See the [contributing](https://github.com/ivancorrales/knoa/blob/main/CONTRIBUTING.md) documentation.
 
+Please, feel free to create any [feature request](https://github.com/ivancorrales/knoa/issues/new?assignees=&labels=question&projects=&template=feature_request.yaml&title=%F0%9F%92%A1+%5BREQUEST%5D+-+%3Ctitle%3E) that you miss
+or register any [bug](https://github.com/ivancorrales/knoa/issues/new?assignees=&labels=bug&projects=&template=bug_report.yml&title=%F0%9F%90%9B+%5BBUG%5D+-+%3Ctitle%3E) that need to be fixed.
+
 
