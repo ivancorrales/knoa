@@ -9,6 +9,28 @@
 
 The `swiss knife` to deal with the hassle of `unstructured data`.
 
+```go
+func main(){
+    k := knoa.Map().Set("firstname", "John", "age", 20)
+    
+    k.Set("siblings", []Person{
+        {
+            Firstname: "Tim",
+            Age:       29,
+        },
+        {
+            Firstname: "Bob",
+            Age:       40,
+        },
+    })
+
+    k.Set("age", 23, "siblings[1].age", 39)
+
+    var person Person
+    k.To(&person)
+}
+```
+
 ## Getting started
 
 ### Installation
@@ -91,7 +113,7 @@ fmt.Println(k.String())
 
 
 
-**Decode an unstructured data into a struct and an array of structs**
+**Decode an unstructured data into an array of structs**
 ```go
 
 type Person struct {
