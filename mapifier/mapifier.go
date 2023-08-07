@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/structs"
 
 	"github.com/ivancorrales/knoa/mapifier/internal"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Mapifier[S Type] interface {
@@ -16,6 +17,7 @@ type Mapifier[S Type] interface {
 	YAML() string
 	JSON() string
 	String(opts ...internal.OutputOpt) string
+	To(output interface{}) error
 }
 
 type Type interface {
@@ -199,4 +201,9 @@ func (s *setter[T]) Set(args ...any) Mapifier[T] {
 	pathValueList := s.mapifier.sanitizer.SanitizePathValueList(args...)
 	s.mapifier.mutators = append(s.mapifier.mutators, internal.NewSetter().Set(s.mapifier.parser, pathValueList)...)
 	return s.mapifier
+}
+
+func (p *mapifier[T]) To(output interface{}) error {
+	content := p.Out()
+	return mapstructure.Decode(content, output)
 }

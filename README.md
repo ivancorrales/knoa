@@ -42,7 +42,10 @@ require (
 
 ### Examples
 
-HAve a look at the following cases
+Check the following examples
+
+
+**Add and modify unstructured data dynamically**
 
 ```go
 k := knoa.Array().Set("[1]", []string{"red", "blue", "green"}, "[2].firstname", "John")
@@ -62,10 +65,34 @@ fmt.Println(k.String())
 k.Set("[0].enabled", false, "[2].firstname", "Jane")
 fmt.Println(k.String())
 // [{"enabled":false,"fullName":"Senior Developer","roleLevel":3},["red","blue","green"],{"firstname":"Jane"}]
-
 ```
 
-Additionally, we encourege to have a look at folder `examples`  to get a better understanding on how `knoa` works.
+
+
+**Decode into an array of custom struct**
+```go
+
+type Person struct {
+    Firstname string `struct:"firstname"`
+    Age       int    `struct:"age"`
+}
+
+...
+
+var output []Person
+knoa.Load[[]any]([]any{
+    Person{
+        Firstname: "Jane",
+        Age:       20,
+    },
+}).Set("[1]", Person{
+    Firstname: "Bob",
+    Age:       23,
+}, "[2].firstname", "John").To(&output)
+```
+
+
+Additionally, we encourege to have a look at folder `examples` to get a better understanding on how `knoa` works.
 
 ### Contributing
 
