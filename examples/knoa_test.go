@@ -26,8 +26,9 @@ func ExampleArrays() {
 }
 
 type Person struct {
-	Firstname string `struct:"firstname"`
-	Age       int    `struct:"age"`
+	Firstname string   `structs:"firstname"`
+	Age       int      `structs:"age"`
+	Siblings  []Person `structs:"siblings,omitempty"`
 }
 
 func (p Person) String() string {
@@ -57,4 +58,25 @@ func ExampleArrayOfObjects() {
 	// Jane -> 20
 	// Bob -> 23
 	// John -> 0
+}
+
+func ExampleMap() {
+	k := knoa.Map().Set("firstname", "John", "age", 20)
+	fmt.Println(k.String())
+	k.Set("siblings", []Person{
+		{
+			Firstname: "Tim",
+			Age:       29,
+		}, {
+			Firstname: "Bob",
+			Age:       40,
+		},
+	})
+	fmt.Println(k.String())
+	k.Set("age", 23, "siblings[1].age", 39)
+	fmt.Println(k.String())
+	// Output:
+	// {"age":20,"firstname":"John"}
+	// {"age":20,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
+	// {"age":23,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":39,"firstname":"Bob"}]}
 }

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"github.com/fatih/structs"
 	"reflect"
 	"strconv"
 )
@@ -26,7 +27,7 @@ func (m *Mutator) applyValue(in any) any {
 	val := reflect.ValueOf(m.value)
 	switch val.Kind() {
 	case reflect.Struct:
-		return nil
+		return structs.Map(val.Interface())
 	case reflect.Func:
 		x := reflect.TypeOf(m.value)
 		if x.NumIn() != 1 || x.NumOut() != 1 {
@@ -38,6 +39,17 @@ func (m *Mutator) applyValue(in any) any {
 		}
 		out := val.Call([]reflect.Value{inVal})
 		return out[0].String()
+	case reflect.Slice, reflect.Array:
+		out := make([]any, val.Len())
+		for i := 0; i < val.Len(); i++ {
+			if val.Index(i).Kind() == reflect.Struct {
+				out[i] = structs.Map(val.Index(i).Interface())
+			} else {
+
+				out[i] = val.Index(i).Interface()
+			}
+		}
+		return out
 	default:
 		return m.value
 	}
@@ -143,29 +155,6 @@ func (m *Mutator) ToArray(content []any) []any {
 
 		content[index] = m.child.ToMap(childContent)
 	}
-	/**
-	switch reflect.ValueOf(currentChild).Kind() {
-	case reflect.Slice, reflect.Array:
-		var childContent []any
-		if currentChild == nil {
-			childContent = make([]any, 0)
-		} else {
-			childContent, _ = currentChild.([]any)
-		}
-		content[index] = m.child.ToArray(childContent)
-	default:
-		var childContent map[string]any
-		if currentChild == nil {
-			childContent = make(map[string]any)
-		} else {
-			childContent, _ = currentChild.(map[string]any)
-		}
-
-		content[index] = m.child.ToMap(childContent)
-	}
-
-	**/
-
 	return content
 }
 

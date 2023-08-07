@@ -11,8 +11,6 @@ The `swiss knife` to deal with the hassle of `unstructured data`.
 
 ## Getting started
 
-This module is already `ready-for-production`.
-
 ### Installation
 
 Use go get to retrieve the library to add it to your GOPATH workspace, or project's Go module dependencies.
@@ -45,7 +43,7 @@ require (
 Check the following examples
 
 
-**Add and modify unstructured data dynamically**
+** Create and modify an array dynamically**
 
 ```go
 k := knoa.Array().Set("[1]", []string{"red", "blue", "green"}, "[2].firstname", "John")
@@ -67,9 +65,33 @@ fmt.Println(k.String())
 // [{"enabled":false,"fullName":"Senior Developer","roleLevel":3},["red","blue","green"],{"firstname":"Jane"}]
 ```
 
+** Create and modify a map dynamically**
+
+```go
+k := knoa.Map().Set("firstname", "John", "age", 20)
+fmt.Println(k.String())
+// {"age":20,"firstname":"John"}
+
+k.Set("siblings", []Person{
+    {
+        Firstname: "Tim",
+        Age:       29,
+    }, {
+        Firstname: "Bob",
+        Age:       40,
+    },
+})
+fmt.Println(k.String())
+// {"age":20,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
+
+k.Set("age", 23, "siblings[1].age", 39)
+fmt.Println(k.String())
+// {"age":23,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":39,"firstname":"Bob"}]}
+```
 
 
-**Decode into an array of custom struct**
+
+**Decode an unstructured data into a struct and an array of structs**
 ```go
 
 type Person struct {
@@ -81,14 +103,16 @@ type Person struct {
 
 var output []Person
 knoa.Load[[]any]([]any{
-    Person{
-        Firstname: "Jane",
-        Age:       20,
-    },
-}).Set("[1]", Person{
-    Firstname: "Bob",
-    Age:       23,
-}, "[2].firstname", "John").To(&output)
+        Person{
+            Firstname: "Jane",
+            Age:       20,
+        },
+    }).
+	Set("[1]", Person{
+        Firstname: "Bob",
+        Age:       23,
+    }, "[2].firstname", "John").
+	To(&output)
 ```
 
 
