@@ -38,6 +38,8 @@ func main(){
 }
 ```
 
+> The above code can be run at [https://go.dev/play/p/LCkzZSiXbo9](https://go.dev/play/p/LCkzZSiXbo9)  
+
 ## Getting started
 
 ### Installation
