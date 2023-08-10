@@ -14,7 +14,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/ivancorrales/knoa"
 )
 
@@ -27,9 +26,8 @@ type Person struct {
 func main() {
 	k := knoa.Map().Set("firstname", "John", "age", 20)
 	fmt.Println(k.JSON())
-	// fmt.Println(k.YAML())
-	// fmt.Println(k.Out())
-
+	// {"age":20,"firstname":"John"}
+	
 	k.Set("siblings", []Person{
 		{
 			Firstname: "Tim",
@@ -41,30 +39,21 @@ func main() {
 		},
 	})
 	fmt.Println(k.JSON())
-	// fmt.Println(k.YAML())
-	// fmt.Println(k.Out())
+	// {"age":20,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
 
 	k.Set("age", 23, "siblings[1].age", 39)
 	fmt.Println(k.JSON())
-	// fmt.Println(k.YAML())
-	// fmt.Println(k.Out())
+	// {"age":23,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":39,"firstname":"Bob"}]}
 
 	k.Set("siblings[*].age", 40)
 	fmt.Println(k.JSON())
-	// fmt.Println(k.YAML())
-	// fmt.Println(k.Out())
+	// {"age":23,"firstname":"John","siblings":[{"age":40,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
 
 	var person Person
 	k.To(&person)
 	fmt.Println(person)
+	// {John 23 [{Tim 40 []} {Bob 40 []}]}
 }
-/**
-{"age":20,"firstname":"John"}
-{"age":20,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
-{"age":23,"firstname":"John","siblings":[{"age":29,"firstname":"Tim"},{"age":39,"firstname":"Bob"}]}
-{"age":23,"firstname":"John","siblings":[{"age":40,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
-{John 23 [{Tim 40 []} {Bob 40 []}]}
- */
 ```
 
 > The above code can be run at [https://go.dev/play/p/LCkzZSiXbo9](https://go.dev/play/p/LCkzZSiXbo9)  
@@ -205,7 +194,7 @@ k.To(&person)
 ```
 
 
-Additionally, we encourege to have a look at folder `examples` to get a better understanding on how `knoa` works.
+Additionally, we encourage to have a look at folder `examples` to get a better understanding on how `knoa` works.
 
 ### Contributing
 
