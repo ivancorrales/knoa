@@ -38,8 +38,12 @@ func main() {
 	fmt.Println(k.JSON())
 	// {"age":23,"firstname":"John","siblings":[{"age":40,"firstname":"Tim"},{"age":40,"firstname":"Bob"}]}
 
+	k.Unset("siblings[0]")
+	fmt.Println(k.JSON())
+	// {"age":23,"firstname":"John","siblings":[{"age":40,"firstname":"Bob"}]}
+
 	var person Person
 	k.To(&person)
 	fmt.Println(person)
-	// {John 23 [{Tim 40 []} {Bob 40 []}]}
+	// {John 23 [{Bob 40 []}]}
 }
