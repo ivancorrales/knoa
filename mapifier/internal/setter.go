@@ -10,6 +10,7 @@ type Setter struct {
 	prefix     string
 	funcPrefix func(string) string
 }
+
 type SetterOpt func(setter *Setter)
 
 func WithFuncPrefix(fn func(string) string) func(setter *Setter) {

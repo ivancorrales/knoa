@@ -18,3 +18,8 @@ var (
 	WithFuncPrefix   = internal.WithFuncPrefix
 	WithStringPrefix = internal.WithStringPrefix
 )
+
+var (
+	SetOp   = internal.SetOp
+	UnsetOp = internal.UnsetOp
+)

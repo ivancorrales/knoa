@@ -12,6 +12,7 @@ import (
 
 type Mapifier[S Type] interface {
 	Set(pathValueList ...any) Mapifier[S]
+	Unset(pathValueList ...any) Mapifier[S]
 	With(opts ...SetterOpt) func(pathValueList ...any) Mapifier[S]
 	Out() S
 	YAML() string
@@ -158,6 +159,12 @@ func (p *mapifier[T]) With(opts ...SetterOpt) func(args ...any) Mapifier[T] {
 func (p *mapifier[T]) Set(args ...any) Mapifier[T] {
 	pathValueList := p.sanitizer.SanitizePathValueList(args...)
 	p.mutators = append(p.mutators, internal.NewSetter().Set(p.parser, pathValueList)...)
+	return p
+}
+
+func (p *mapifier[T]) Unset(args ...any) Mapifier[T] {
+	paths := p.sanitizer.SanitizePathList(args...)
+	p.mutators = append(p.mutators, internal.NewUnsetter().Unset(p.parser, paths)...)
 	return p
 }
 
