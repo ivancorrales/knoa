@@ -58,3 +58,40 @@ func ExampleArraySetSubArraysV2() {
 	// Output:
 	// [[null,["Tim","Janet"]]]
 }
+
+func ExampleArraySetAsteriskAndIndex() {
+	initialValue := []any{"red", "blue"}
+	k := knoa.Load(initialValue)
+
+	k.Set("[2]", "yellow")
+	fmt.Println(k.JSON())
+
+	k.Set("[*]", "black")
+	fmt.Println(k.JSON())
+	// Output:
+	// ["red","blue","yellow"]
+	// ["black","black","black"]
+}
+
+func ExampleArraySetAsteriskAndIndexV2() {
+	initialValue := []any{
+		Person{
+			Firstname: "Jane",
+			Age:       20,
+		},
+		Person{
+			Firstname: "Tom",
+			Age:       22,
+		},
+	}
+	k := knoa.Load(initialValue)
+
+	k.Set("[0].age", 22)
+	fmt.Println(k.JSON())
+
+	k.Set("[*].age", 30)
+	fmt.Println(k.JSON())
+	// Output:
+	// [{"age":22,"firstname":"Jane"},{"age":22,"firstname":"Tom"}]
+	// [{"age":30,"firstname":"Jane"},{"age":30,"firstname":"Tom"}]
+}
