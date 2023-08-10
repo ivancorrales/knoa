@@ -12,9 +12,10 @@ git-hooks: ## setup githooks for the local repository
 fmt: ## format the code
 	@echo "=== $(PROJECT_NAME) === [ fmt ]: formatting the code with goimport..."
 	@#$($(GOFUMPT)  $(find . -type f -name '*.go' -not -path "./vendor/*")
-	@goimports -w . && gofumpt -w .
+	@gofumpt -w . && goimports -w .
+
 
 .PHONY: lint
 lint:
 	@echo "=== $(PROJECT_NAME) === [ lint ]: Validating source code running $(GOLINTER)..."
-	$(GOLINTER) run ./...
+	$(GOLINTER) run ./... --fix

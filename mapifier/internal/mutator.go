@@ -137,6 +137,7 @@ func (m *Mutator) ToArray(content []any) []any {
 	return m.itemToArray(index, content)
 }
 
+//nolint:nestif
 func (m *Mutator) itemToArray(index int, content []any) []any {
 	if m.child == nil {
 		if m.value != nil && index < len(content) {
@@ -160,7 +161,6 @@ func (m *Mutator) itemToArray(index int, content []any) []any {
 		} else {
 			childContent, _ = currentChild.(map[string]any)
 		}
-
 		content[index] = m.child.ToMap(childContent)
 	}
 	return content

@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/fatih/structs"
-
 	"github.com/ivancorrales/knoa/mapifier/internal"
 	"github.com/mitchellh/mapstructure"
 )
@@ -54,9 +53,13 @@ func convert[T Type](input T) any {
 			itemValue := reflect.ValueOf(input).Index(i)
 			switch itemValue.Kind() {
 			case reflect.Slice, reflect.Array:
-				output[i] = convert(itemValue.Interface().([]any))
+				if in, ok := itemValue.Interface().([]any); ok {
+					output[i] = convert(in)
+				}
 			case reflect.Map:
-				output[i] = convert(itemValue.Interface().(map[string]any))
+				if in, ok := itemValue.Interface().(map[string]any); ok {
+					output[i] = convert(in)
+				}
 			case reflect.Struct:
 				v := structs.Map(itemValue.Interface())
 				output[i] = convert(v)
@@ -109,10 +112,10 @@ func Load[T Type](content T, options ...KnoaOpt) Mapifier[T] {
 	var contentMap T
 	procContent := convert(content)
 	switch reflect.ValueOf(procContent).Kind() {
-	case reflect.Map:
-		contentMap = procContent.(T)
-	case reflect.Slice, reflect.Array:
-		contentMap = procContent.(T)
+	case reflect.Map, reflect.Slice, reflect.Array:
+		if v, ok := procContent.(T); ok {
+			contentMap = v
+		}
 	}
 
 	p := &mapifier[T]{
