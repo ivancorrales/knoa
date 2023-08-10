@@ -5,8 +5,9 @@ import (
 	"reflect"
 
 	"github.com/fatih/structs"
-	"github.com/ivancorrales/knoa/mapifier/internal"
 	"github.com/mitchellh/mapstructure"
+
+	"github.com/ivancorrales/knoa/mapifier/internal"
 )
 
 type Mapifier[S Type] interface {
