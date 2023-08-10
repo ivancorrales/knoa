@@ -47,7 +47,6 @@ func (s *Sanitizer) SanitizePathValueList(args ...any) PathValueList {
 }
 
 func (s *Sanitizer) SanitizePathList(args ...any) []string {
-	
 	list := make([]string, len(args))
 	invalidPathValues := 0
 	for i := 0; i < len(args); i++ {
