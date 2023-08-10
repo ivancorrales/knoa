@@ -8,11 +8,19 @@ import (
 	"github.com/fatih/structs"
 )
 
+type MutatorOperation int32
+
+const (
+	SetOp MutatorOperation = iota
+	UnsetOp
+)
+
 type Mutator struct {
-	name  string
-	index string
-	child *Mutator
-	value any
+	name      string
+	index     string
+	child     *Mutator
+	value     any
+	operation MutatorOperation
 }
 
 func (m *Mutator) IsArray() bool {
@@ -21,7 +29,12 @@ func (m *Mutator) IsArray() bool {
 }
 
 func (m *Mutator) Child() *Mutator {
+	m.child.operation = m.operation
 	return m.child
+}
+
+func (m *Mutator) Operation() MutatorOperation {
+	return m.operation
 }
 
 func (m *Mutator) applyValue(in any) any {
@@ -72,7 +85,7 @@ func (m *Mutator) WithValue(value any) {
 	if m.child == nil {
 		m.value = value
 	} else {
-		m.child.WithValue(value)
+		m.Child().WithValue(value)
 	}
 }
 
@@ -80,7 +93,7 @@ func (m *Mutator) addToBottom(child *Mutator) {
 	if m.child == nil {
 		m.child = child
 	} else {
-		m.child.addToBottom(child)
+		m.Child().addToBottom(child)
 	}
 }
 
@@ -89,12 +102,16 @@ func (m *Mutator) ToMap(content map[string]any) map[string]any {
 		content = make(map[string]any)
 	}
 	if m.child == nil {
+		if m.operation == UnsetOp {
+			delete(content, m.name)
+			return content
+		}
 		if m.value != nil {
 			content[m.name] = m.applyValue(content[m.name])
 		}
 		return content
 	}
-	mt := *m.child
+	mt := *m.Child()
 	c := content[m.name]
 	switch reflect.ValueOf(c).Kind() {
 	case reflect.Slice, reflect.Array:
@@ -113,6 +130,10 @@ func (m *Mutator) ToMap(content map[string]any) map[string]any {
 			childContent, _ = c.(map[string]any)
 		}
 		mt.ToMap(childContent)
+		if m.operation == UnsetOp {
+			delete(content, m.name)
+			return content
+		}
 		content[m.name] = childContent
 	}
 
@@ -140,6 +161,9 @@ func (m *Mutator) ToArray(content []any) []any {
 //nolint:nestif
 func (m *Mutator) itemToArray(index int, content []any) []any {
 	if m.child == nil {
+		if m.operation == UnsetOp {
+			return append(content[:index], content[index+1:]...)
+		}
 		if m.value != nil && index < len(content) {
 			content[index] = m.applyValue(content[index])
 		}
@@ -153,7 +177,7 @@ func (m *Mutator) itemToArray(index int, content []any) []any {
 		} else {
 			childContent, _ = currentChild.([]any)
 		}
-		content[index] = m.child.ToArray(childContent)
+		content[index] = m.Child().ToArray(childContent)
 	} else {
 		var childContent map[string]any
 		if currentChild == nil {
@@ -161,7 +185,7 @@ func (m *Mutator) itemToArray(index int, content []any) []any {
 		} else {
 			childContent, _ = currentChild.(map[string]any)
 		}
-		content[index] = m.child.ToMap(childContent)
+		content[index] = m.Child().ToMap(childContent)
 	}
 	return content
 }

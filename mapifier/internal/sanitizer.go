@@ -45,3 +45,24 @@ func (s *Sanitizer) SanitizePathValueList(args ...any) PathValueList {
 	}
 	return list
 }
+
+func (s *Sanitizer) SanitizePathList(args ...any) []string {
+	
+	list := make([]string, len(args))
+	invalidPathValues := 0
+	for i := 0; i < len(args); i++ {
+		path, ok := args[i].(string)
+		if !ok {
+			if s.Strict {
+				log.Panicf("invalid Path '%v'.  Paths must be string", args[i])
+			}
+			invalidPathValues += 1
+			continue
+		}
+		list[i] = path
+	}
+	if invalidPathValues > 0 {
+		return list[:len(list)-invalidPathValues]
+	}
+	return list
+}

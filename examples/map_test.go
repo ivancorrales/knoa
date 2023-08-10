@@ -192,6 +192,29 @@ func ExampleRootArrayWithSubArrays() {
 	// [{"age":33,"firstname":"Tim","siblings":["John","Jane"]}]
 }
 
+func ExampleRootArrayWithSubArraysUnset() {
+	var inputValues []any
+	inputValues = append(inputValues, struct {
+		Age       int32  `structs:"age"`
+		Firstname string `structs:"firstname"`
+	}{
+		Age:       33,
+		Firstname: "Tim",
+	})
+	k := knoa.Load(inputValues)
+	k.Set("[0].siblings", []string{
+		"John", "Jane",
+	})
+	out := k.JSON()
+	fmt.Println(out)
+	k.Unset("[0].siblings", "[0].firstname")
+	out = k.JSON()
+	fmt.Println(out)
+	// Output:
+	// [{"age":33,"firstname":"Tim","siblings":["John","Jane"]}]
+	// [{"age":33}]
+}
+
 func ExampleRootArrayWithSubArraysAndOverrideTypes() {
 	var inputValues []any
 	inputValues = append(inputValues, struct {
@@ -210,4 +233,26 @@ func ExampleRootArrayWithSubArraysAndOverrideTypes() {
 	fmt.Println(out)
 	// Output:
 	// [["John","Jane"]]
+}
+
+func ExampleRootArrayWithSubArraysAndOverrideTypesUnset() {
+	var inputValues []any
+	inputValues = append(inputValues, struct {
+		Age       int32  `structs:"age"`
+		Firstname string `structs:"firstname"`
+	}{
+		Age:       33,
+		Firstname: "Tim",
+	})
+	k := knoa.Load(inputValues)
+
+	k.Set("[0]", []string{
+		"John", "Jane",
+	})
+	k.Unset("[0][1]")
+	out := k.JSON()
+	fmt.Println(out)
+
+	// Output:
+	// [["John"]]
 }
