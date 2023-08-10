@@ -100,4 +100,6 @@ linters:
     - gochecknoinits
     - wsl
     - nlreturn
+    - depguard
+    - gci
   fast: true

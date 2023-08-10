@@ -27,9 +27,21 @@ func Load[T mapifier.Type](content T, opts ...mapifier.KnoaOpt) mapifier.Mapifie
 	i := v.Interface()
 	switch v.Kind() {
 	case reflect.Slice, reflect.Array:
-		return mapifier.Load[[]any](i.([]any), opts...).(mapifier.Mapifier[T])
+		val, ok := mapifier.Load[[]any](i.([]any), opts...).(mapifier.Mapifier[T])
+		if !ok {
+			return nil
+		}
+		return val
 	case reflect.Map:
-		return mapifier.Load[map[string]any](i.(map[string]any), opts...).(mapifier.Mapifier[T])
+		val, ok := mapifier.Load[map[string]any](i.(map[string]any), opts...).(mapifier.Mapifier[T])
+		if !ok {
+			return nil
+		}
+		return val
 	}
-	return mapifier.New[map[string]any]().(mapifier.Mapifier[T])
+	val, ok := mapifier.New[map[string]any]().(mapifier.Mapifier[T])
+	if !ok {
+		return nil
+	}
+	return val
 }
