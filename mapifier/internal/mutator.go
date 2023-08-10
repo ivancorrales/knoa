@@ -126,10 +126,18 @@ func (m *Mutator) ToArray(content []any) []any {
 	content = ensureSizeOfArray(content, m.index)
 
 	index, err := strconv.Atoi(m.index)
-	if err != nil && m.index != "*" {
-		// This means that we should apply a '*'
+	if err != nil {
+		if m.index == "*" {
+			for i := 0; i < len(content); i++ {
+				content = m.itemToArray(i, content)
+			}
+		}
 		return content
 	}
+	return m.itemToArray(index, content)
+}
+
+func (m *Mutator) itemToArray(index int, content []any) []any {
 	if m.child == nil {
 		if m.value != nil && index < len(content) {
 			content[index] = m.applyValue(content[index])
