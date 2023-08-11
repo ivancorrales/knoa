@@ -1,18 +1,9 @@
-package internal
+package mutator
 
 import (
-	"fmt"
+	"github.com/fatih/structs"
 	"reflect"
 	"strconv"
-
-	"github.com/fatih/structs"
-)
-
-type MutatorOperation int32
-
-const (
-	SetOp MutatorOperation = iota
-	UnsetOp
 )
 
 type Mutator struct {
@@ -20,12 +11,15 @@ type Mutator struct {
 	index     string
 	child     *Mutator
 	value     any
-	operation MutatorOperation
+	operation operationCode
 }
 
-func (m *Mutator) IsArray() bool {
-	_, err := strconv.Atoi(m.index)
-	return err == nil || m.index == "*"
+func (m *Mutator) addValueToNode(v any) {
+	if m.child == nil {
+		m.value = v
+	} else {
+		m.child.addValueToNode(v)
+	}
 }
 
 func (m *Mutator) Child() *Mutator {
@@ -33,8 +27,9 @@ func (m *Mutator) Child() *Mutator {
 	return m.child
 }
 
-func (m *Mutator) Operation() MutatorOperation {
-	return m.operation
+func (m *Mutator) IsArray() bool {
+	_, err := strconv.Atoi(m.index)
+	return err == nil || m.index == "*"
 }
 
 func (m *Mutator) applyValue(in any) any {
@@ -68,48 +63,19 @@ func (m *Mutator) applyValue(in any) any {
 	}
 }
 
-func (m *Mutator) String() string {
-	return m.pretty("")
-}
-
-func (m *Mutator) pretty(prefix string) string {
-	// out := fmt.Sprintf("name: %s index: %s Kind: %v Value: %v", m.name, m.index, m.kind, m.value)
-	out := fmt.Sprintf("name: %s index: %s  Value: %v", m.name, m.index, m.value)
-	if m.child != nil {
-		return fmt.Sprintf("%s \n%s %s ", out, prefix, m.child.pretty(prefix+"\t"))
-	}
-	return out
-}
-
-func (m *Mutator) WithValue(value any) {
-	if m.child == nil {
-		m.value = value
-	} else {
-		m.Child().WithValue(value)
-	}
-}
-
-func (m *Mutator) addToBottom(child *Mutator) {
-	if m.child == nil {
-		m.child = child
-	} else {
-		m.Child().addToBottom(child)
-	}
-}
-
-func (m *Mutator) ToMap(content map[string]any) map[string]any {
+func (m *Mutator) ToMap(content map[string]any) (map[string]any, error) {
 	if content == nil {
 		content = make(map[string]any)
 	}
 	if m.child == nil {
-		if m.operation == UnsetOp {
+		if m.operation == unsetOp {
 			delete(content, m.name)
-			return content
+			return content, nil
 		}
 		if m.value != nil {
 			content[m.name] = m.applyValue(content[m.name])
 		}
-		return content
+		return content, nil
 	}
 	mt := *m.Child()
 	c := content[m.name]
@@ -121,26 +87,30 @@ func (m *Mutator) ToMap(content map[string]any) map[string]any {
 		} else {
 			childContent, _ = c.([]any)
 		}
-		content[m.name] = mt.ToArray(childContent)
+		value, toArrayErr := mt.ToArray(childContent)
+		if toArrayErr != nil {
+			return nil, toArrayErr
+		}
+		content[m.name] = value
 	default:
 		var childContent map[string]any
 		if c == nil {
-			childContent = make(map[string]any, 0)
+			childContent = make(map[string]any)
 		} else {
 			childContent, _ = c.(map[string]any)
 		}
 		mt.ToMap(childContent)
-		if m.operation == UnsetOp {
+		if m.operation == unsetOp {
 			delete(content, m.name)
-			return content
+			return content, nil
 		}
 		content[m.name] = childContent
 	}
 
-	return content
+	return content, nil
 }
 
-func (m *Mutator) ToArray(content []any) []any {
+func (m *Mutator) ToArray(content []any) ([]any, error) {
 	if content == nil {
 		content = make([]any, 0)
 	}
@@ -149,45 +119,47 @@ func (m *Mutator) ToArray(content []any) []any {
 	index, err := strconv.Atoi(m.index)
 	if err != nil {
 		if m.index == "*" {
+			var itemToArrayErr error
 			for i := 0; i < len(content); i++ {
-				content = m.itemToArray(i, content)
+				content, itemToArrayErr = m.itemToArray(i, content)
+				if itemToArrayErr != nil {
+					return nil, itemToArrayErr
+				}
 			}
+			return content, nil
 		}
-		return content
+		return nil, err
 	}
 	return m.itemToArray(index, content)
 }
 
 //nolint:nestif
-func (m *Mutator) itemToArray(index int, content []any) []any {
+func (m *Mutator) itemToArray(index int, content []any) ([]any, error) {
 	if m.child == nil {
-		if m.operation == UnsetOp {
-			return append(content[:index], content[index+1:]...)
+		if m.operation == unsetOp {
+			return append(content[:index], content[index+1:]...), nil
 		}
 		if m.value != nil && index < len(content) {
 			content[index] = m.applyValue(content[index])
 		}
-		return content
+		return content, nil
 	}
-	currentChild := content[index]
 	if m.child.IsArray() {
-		var childContent []any
-		if currentChild == nil {
-			childContent = make([]any, 0)
-		} else {
-			childContent, _ = currentChild.([]any)
+		child := castOrCreateArray(content[index])
+		c, err := m.Child().ToArray(child)
+		if err != nil {
+			return nil, err
 		}
-		content[index] = m.Child().ToArray(childContent)
+		content[index] = c
 	} else {
-		var childContent map[string]any
-		if currentChild == nil {
-			childContent = make(map[string]any)
-		} else {
-			childContent, _ = currentChild.(map[string]any)
+		child := castOrCreateMap(content[index])
+		mapValue, mapErr := m.Child().ToMap(child)
+		if mapErr != nil {
+			return nil, mapErr
 		}
-		content[index] = m.Child().ToMap(childContent)
+		content[index] = mapValue
 	}
-	return content
+	return content, nil
 }
 
 func ensureSizeOfArray(arrayContent []any, indexStr string) []any {
@@ -201,4 +173,19 @@ func ensureSizeOfArray(arrayContent []any, indexStr string) []any {
 		arrayContent = append(arrayContent, appendedArray...)
 	}
 	return arrayContent
+}
+
+func castOrCreateArray(in any) (out []any) {
+	if in != nil {
+		out, _ = in.([]any)
+	}
+	return
+
+}
+func castOrCreateMap(in any) (out map[string]any) {
+	if in != nil {
+		out, _ = in.(map[string]any)
+	}
+	return
+
 }

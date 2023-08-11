@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ivancorrales/knoa"
-	"github.com/ivancorrales/knoa/mapifier"
 )
 
 // Create and array and add an entry
@@ -22,14 +21,14 @@ func ExampleArrayStrict() {
 			fmt.Println(r)
 		}
 	}()
-	knoa.Array(mapifier.WithStrictMode(true)).Set("[a]", "Jane").JSON()
+	knoa.Array(knoa.WithStrictMode(true)).Set("[a]", "Jane").JSON()
 	// Output:
 	// invalid Path  '[a]'. Path doesn't match defined format
 }
 
 // Create and array and add/modify entries
 func ExampleArrayLoadAndModify() {
-	out := knoa.Load([]any{"Janet", "Tim"}).Set("[0]", "Jane", "[2]", "Tom").JSON()
+	out := knoa.FromArray([]any{"Janet", "Tim"}).Set("[0]", "Jane", "[2]", "Tom").JSON()
 	fmt.Println(out)
 	// Output:
 	// ["Jane","Tim","Tom"]
@@ -53,7 +52,9 @@ func ExampleArraySetSubArrays() {
 
 // Set values for two-deep level of arrays attributes
 func ExampleArraySetSubArraysV2() {
-	out := knoa.Array().Set("[0][1]", []string{"Tim", "Janet"}).JSON()
+	k := knoa.Array()
+	k.Set("[0][1]", []string{"Tim", "Janet"})
+	out := k.JSON()
 	fmt.Println(out)
 	// Output:
 	// [[null,["Tim","Janet"]]]
@@ -61,7 +62,7 @@ func ExampleArraySetSubArraysV2() {
 
 func ExampleArraySetAsteriskAndIndex() {
 	initialValue := []any{"red", "blue"}
-	k := knoa.Load(initialValue)
+	k := knoa.FromArray(initialValue)
 
 	k.Set("[2]", "yellow")
 	fmt.Println(k.JSON())
@@ -84,7 +85,7 @@ func ExampleArraySetAsteriskAndIndexV2() {
 			Age:       22,
 		},
 	}
-	k := knoa.Load(initialValue)
+	k := knoa.FromArray(initialValue)
 
 	k.Set("[0].age", 22)
 	fmt.Println(k.JSON())

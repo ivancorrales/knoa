@@ -1,4 +1,4 @@
-package internal
+package sanitizer
 
 import (
 	"log"
@@ -13,11 +13,7 @@ type PathValue struct {
 
 type PathValueList []PathValue
 
-type Sanitizer struct {
-	Strict bool
-}
-
-func (s *Sanitizer) SanitizePathValueList(args ...any) PathValueList {
+func SanitizePathValueList(strict bool, args ...any) PathValueList {
 	if len(args)%2 != 0 {
 		args = append(args, emptyValue)
 	}
@@ -28,7 +24,7 @@ func (s *Sanitizer) SanitizePathValueList(args ...any) PathValueList {
 	for i := 0; i < len(args); i += 2 {
 		path, ok := args[i].(string)
 		if !ok {
-			if s.Strict {
+			if strict {
 				log.Panicf("invalid Path '%v'.  Paths must be string", args[i])
 			}
 			invalidPathValues += 1
@@ -46,13 +42,13 @@ func (s *Sanitizer) SanitizePathValueList(args ...any) PathValueList {
 	return list
 }
 
-func (s *Sanitizer) SanitizePathList(args ...any) []string {
+func SanitizePathList(strict bool, args ...any) []string {
 	list := make([]string, len(args))
 	invalidPathValues := 0
 	for i := 0; i < len(args); i++ {
 		path, ok := args[i].(string)
 		if !ok {
-			if s.Strict {
+			if strict {
 				log.Panicf("invalid Path '%v'.  Paths must be string", args[i])
 			}
 			invalidPathValues += 1
