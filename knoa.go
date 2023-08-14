@@ -2,12 +2,14 @@ package knoa
 
 import (
 	"fmt"
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/ivancorrales/knoa/internal"
 	"github.com/ivancorrales/knoa/mutator"
 	"github.com/ivancorrales/knoa/outputter"
 	"github.com/ivancorrales/knoa/sanitizer"
-	"github.com/mitchellh/mapstructure"
-	"reflect"
 )
 
 func FromMap(content map[string]any, opts ...Opt) Knoa[map[string]any] {
@@ -48,11 +50,12 @@ func load[T Type](content T, options ...Opt) Knoa[T] {
 
 type Type internal.Type
 
-type Knoa[S Type] interface {
-	Set(pathValueList ...any) Knoa[S]
-	Unset(pathValueList ...any) Knoa[S]
-	With(opts ...mutator.OperationOpt) func(pathValueList ...any) Knoa[S]
-	Out() S
+type Knoa[T Type] interface {
+	Set(pathValueList ...any) Knoa[T]
+	Unset(pathValueList ...string) Knoa[T]
+	Apply(args ...any) Knoa[T]
+	With(opts ...mutator.OperationOpt) func(pathValueList ...any) Knoa[T]
+	Out() T
 	YAML(opts ...outputter.YAMLOpt) string
 	JSON(opts ...outputter.JSONOpt) string
 	To(output interface{})
@@ -106,9 +109,14 @@ func (k *knoa[T]) Set(args ...any) Knoa[T] {
 	return k
 }
 
-func (k *knoa[T]) Unset(args ...any) Knoa[T] {
-	paths := sanitizer.SanitizePathList(k.strictMode, args...)
-	k.mutators = append(k.mutators, mutator.NewOperation().Unset(k.parser, paths)...)
+func (k *knoa[T]) Unset(args ...string) Knoa[T] {
+	k.mutators = append(k.mutators, mutator.NewOperation().Unset(k.parser, args)...)
+	return k
+}
+
+func (k *knoa[T]) Apply (args ...any) Knoa[T]{
+	pathFuncList := sanitizer.SanitizePathFuncList(k.strictMode, args...)
+	k.mutators = append(k.mutators, mutator.NewOperation().Apply(k.parser, pathFuncList)...)
 	return k
 }
 
@@ -142,7 +150,6 @@ func (k *knoa[T]) Out() T {
 			content, _ = reflect.ValueOf(mapIn).Interface().(T)
 		default:
 			k.err = fmt.Errorf("unsupporteed output type '%s'", reflect.TypeOf(content).Kind())
-
 		}
 	}
 	return content

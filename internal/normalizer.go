@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"github.com/fatih/structs"
 	"reflect"
+
+	"github.com/fatih/structs"
 )
 
 func Normalize[T Type](input T) any {

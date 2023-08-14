@@ -117,7 +117,6 @@ func Test_sanitizer_sanitize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			if tt.panicked {
 				assert.Panics(t, func() { SanitizePathValueList(tt.fields.strict, tt.args.args...) }, "The execution should end panicking")
 			} else {

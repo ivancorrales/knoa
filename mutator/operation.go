@@ -1,9 +1,11 @@
 package mutator
 
 import (
-	"github.com/fatih/structs"
-	"github.com/ivancorrales/knoa/sanitizer"
 	"reflect"
+
+	"github.com/fatih/structs"
+
+	"github.com/ivancorrales/knoa/sanitizer"
 )
 
 type operationCode int32
@@ -11,6 +13,7 @@ type operationCode int32
 const (
 	setOp operationCode = iota
 	unsetOp
+	applyOp
 )
 
 type operation struct {
@@ -68,8 +71,27 @@ func (op *operation) Unset(parser *Parser, paths []string) (mutators []Mutator) 
 			path = op.funcPrefix(path)
 		}
 		m := parser.Parse(path)
-		m.operation = unsetOp
 		if m != nil {
+			m.operation = unsetOp
+			mutators = append(mutators, *m)
+		}
+	}
+	return mutators
+}
+
+func (op *operation) Apply(parser *Parser, patchFuncList sanitizer.PathFuncList) (mutators []Mutator) {
+	for _, pathFunc := range patchFuncList {
+		path := pathFunc.Path
+		if op.prefix != "" {
+			path = op.prefix + path
+		}
+		if op.funcPrefix != nil {
+			path = op.funcPrefix(path)
+		}
+		m := parser.Parse(path)
+		if m != nil {
+			m.operation = applyOp
+			m.addValueToNode(pathFunc.Func)
 			mutators = append(mutators, *m)
 		}
 	}
@@ -85,3 +107,5 @@ func (op *operation) checkValue(value any) any {
 		return value
 	}
 }
+
+

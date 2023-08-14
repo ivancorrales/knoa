@@ -4,8 +4,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type YAML struct {
-}
+type YAML struct{}
 
 type YAMLOpt func(y *YAML)
 

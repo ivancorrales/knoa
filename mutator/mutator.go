@@ -1,9 +1,11 @@
 package mutator
 
 import (
-	"github.com/fatih/structs"
+	"fmt"
 	"reflect"
 	"strconv"
+
+	"github.com/fatih/structs"
 )
 
 type Mutator struct {
@@ -68,14 +70,21 @@ func (m *Mutator) ToMap(content map[string]any) (map[string]any, error) {
 		content = make(map[string]any)
 	}
 	if m.child == nil {
-		if m.operation == unsetOp {
+		switch m.operation {
+		case unsetOp:
 			delete(content, m.name)
 			return content, nil
+		case applyOp:
+			if m.value != nil {
+				content[m.name] = m.applyValue(content[m.name])
+			}
+			return content, nil
+		default:
+			if m.value != nil {
+				content[m.name] = m.applyValue(content[m.name])
+			}
+			return content, nil
 		}
-		if m.value != nil {
-			content[m.name] = m.applyValue(content[m.name])
-		}
-		return content, nil
 	}
 	mt := *m.Child()
 	c := content[m.name]
@@ -133,16 +142,23 @@ func (m *Mutator) ToArray(content []any) ([]any, error) {
 	return m.itemToArray(index, content)
 }
 
-//nolint:nestif
 func (m *Mutator) itemToArray(index int, content []any) ([]any, error) {
 	if m.child == nil {
-		if m.operation == unsetOp {
+		switch m.operation{
+		case unsetOp:
 			return append(content[:index], content[index+1:]...), nil
+		case applyOp:
+			fmt.Println("ApplyOp")
+			if m.value != nil && index < len(content) {
+				content[index] = m.applyValue(content[index])
+			}
+			return content, nil
+		default:
+			if m.value != nil && index < len(content) {
+				content[index] = m.applyValue(content[index])
+			}
+			return content, nil
 		}
-		if m.value != nil && index < len(content) {
-			content[index] = m.applyValue(content[index])
-		}
-		return content, nil
 	}
 	if m.child.IsArray() {
 		child := castOrCreateArray(content[index])
@@ -180,12 +196,11 @@ func castOrCreateArray(in any) (out []any) {
 		out, _ = in.([]any)
 	}
 	return
-
 }
+
 func castOrCreateMap(in any) (out map[string]any) {
 	if in != nil {
 		out, _ = in.(map[string]any)
 	}
 	return
-
 }
