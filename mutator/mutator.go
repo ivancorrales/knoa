@@ -144,7 +144,7 @@ func (m *Mutator) ToArray(content []any) ([]any, error) {
 
 func (m *Mutator) itemToArray(index int, content []any) ([]any, error) {
 	if m.child == nil {
-		switch m.operation{
+		switch m.operation {
 		case unsetOp:
 			return append(content[:index], content[index+1:]...), nil
 		case applyOp:

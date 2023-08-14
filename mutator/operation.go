@@ -107,5 +107,3 @@ func (op *operation) checkValue(value any) any {
 		return value
 	}
 }
-
-

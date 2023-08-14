@@ -37,6 +37,7 @@ func load[T Type](content T, options ...Opt) Knoa[T] {
 		opt(b)
 	}
 	pathRegExp, attrRegExpr := mutator.RegExpsFromAttributeFormat(b.attrNameFmt)
+	c, _ := internal.Normalize(content).(T)
 	return &knoa[T]{
 		strictMode: b.strictMode,
 		parser: &mutator.Parser{
@@ -44,7 +45,7 @@ func load[T Type](content T, options ...Opt) Knoa[T] {
 			RegExp:          pathRegExp,
 			AttributeRegExp: attrRegExpr,
 		},
-		content: internal.Normalize(content).(T),
+		content: c,
 	}
 }
 
@@ -114,7 +115,7 @@ func (k *knoa[T]) Unset(args ...string) Knoa[T] {
 	return k
 }
 
-func (k *knoa[T]) Apply (args ...any) Knoa[T]{
+func (k *knoa[T]) Apply(args ...any) Knoa[T] {
 	pathFuncList := sanitizer.SanitizePathFuncList(k.strictMode, args...)
 	k.mutators = append(k.mutators, mutator.NewOperation().Apply(k.parser, pathFuncList)...)
 	return k

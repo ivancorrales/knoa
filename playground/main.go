@@ -45,17 +45,17 @@ func main() {
 
 	fmt.Println(k.JSON(outputter.WithPrefixAndIdent(" ", " ")))
 	/**
-	{
-	 "age": 23,
-	 "firstname": "John",
-	 "siblings": [
-	  {
-       "age": 40,
-	   "firstname": "Bob"
-	  }
-	 ]
-	}
-	**/
+		{
+		 "age": 23,
+		 "firstname": "John",
+		 "siblings": [
+		  {
+	       "age": 40,
+		   "firstname": "Bob"
+		  }
+		 ]
+		}
+		**/
 
 	fmt.Println(k.YAML())
 	/**
@@ -66,7 +66,7 @@ func main() {
 		firstname: Bob
 	**/
 
-	k.Apply("age",func(age int)int{
+	k.Apply("age", func(age int) int {
 		return age + 10
 	})
 	fmt.Println(k.JSON())

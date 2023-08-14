@@ -7,7 +7,7 @@ import (
 
 var emptyValue = struct{}{}
 
-var emptyFunc = func(in any)any{
+var emptyFunc = func(in any) any {
 	return in
 }
 
@@ -17,7 +17,7 @@ type PathValue struct {
 }
 
 type PathFunc struct {
-	Path  string
+	Path string
 	Func reflect.Value
 }
 
@@ -71,17 +71,17 @@ func SanitizePathFuncList(strict bool, args ...any) PathFuncList {
 			invalidPathFuncs += 1
 			continue
 		}
-		fn:=reflect.ValueOf(args[i+1])
-		if (fn.Kind()!=reflect.Func){
+		fn := reflect.ValueOf(args[i+1])
+		if fn.Kind() != reflect.Func {
 			if strict {
 				log.Panicf("invalid Func '%v'.  Paths must be a valid func(any)any", args[i+1])
 			}
 			invalidPathFuncs += 1
 			continue
 		}
-		
+
 		list[arg] = PathFunc{
-			Path:  path,
+			Path: path,
 			Func: fn,
 		}
 		arg++
