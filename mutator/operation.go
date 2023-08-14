@@ -1,6 +1,7 @@
 package mutator
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/fatih/structs"
@@ -43,7 +44,7 @@ func NewOperation(opts ...OperationOpt) *operation {
 	return op
 }
 
-func (op *operation) Set(parser *Parser, pathValueList sanitizer.PathValueList) (mutators []Mutator) {
+func (op *operation) Set(parser *Parser, pathValueList sanitizer.PathValueList) (mutators []Mutator, outErr error) {
 	for _, pathValue := range pathValueList {
 		v := op.checkValue(pathValue.Value)
 		path := pathValue.Path
@@ -53,16 +54,19 @@ func (op *operation) Set(parser *Parser, pathValueList sanitizer.PathValueList) 
 		if op.funcPrefix != nil {
 			path = op.funcPrefix(path)
 		}
-		m := parser.Parse(path)
+		m, err := parser.Parse(path)
+		if err != nil {
+			outErr = errors.Join(outErr, err)
+		}
 		if m != nil {
 			m.addValueToNode(v)
 			mutators = append(mutators, *m)
 		}
 	}
-	return mutators
+	return
 }
 
-func (op *operation) Unset(parser *Parser, paths []string) (mutators []Mutator) {
+func (op *operation) Unset(parser *Parser, paths []string) (mutators []Mutator, outErr error) {
 	for _, path := range paths {
 		if op.prefix != "" {
 			path = op.prefix + path
@@ -70,16 +74,19 @@ func (op *operation) Unset(parser *Parser, paths []string) (mutators []Mutator) 
 		if op.funcPrefix != nil {
 			path = op.funcPrefix(path)
 		}
-		m := parser.Parse(path)
+		m, err := parser.Parse(path)
+		if err != nil {
+			outErr = errors.Join(outErr, err)
+		}
 		if m != nil {
 			m.operation = unsetOp
 			mutators = append(mutators, *m)
 		}
 	}
-	return mutators
+	return
 }
 
-func (op *operation) Apply(parser *Parser, patchFuncList sanitizer.PathFuncList) (mutators []Mutator) {
+func (op *operation) Apply(parser *Parser, patchFuncList sanitizer.PathFuncList) (mutators []Mutator, outErr error) {
 	for _, pathFunc := range patchFuncList {
 		path := pathFunc.Path
 		if op.prefix != "" {
@@ -88,14 +95,17 @@ func (op *operation) Apply(parser *Parser, patchFuncList sanitizer.PathFuncList)
 		if op.funcPrefix != nil {
 			path = op.funcPrefix(path)
 		}
-		m := parser.Parse(path)
+		m, err := parser.Parse(path)
+		if err != nil {
+			outErr = errors.Join(outErr, err)
+		}
 		if m != nil {
 			m.operation = applyOp
 			m.addValueToNode(pathFunc.Func)
 			mutators = append(mutators, *m)
 		}
 	}
-	return mutators
+	return
 }
 
 func (op *operation) checkValue(value any) any {

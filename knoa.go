@@ -1,6 +1,7 @@
 package knoa
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -99,25 +100,41 @@ func (k *knoa[T]) With(opts ...mutator.OperationOpt) func(args ...any) Knoa[T] {
 	setter := mutator.NewOperation(opts...)
 	return func(args ...any) Knoa[T] {
 		pathValueList := sanitizer.SanitizePathValueList(k.strictMode, args...)
-		k.mutators = append(k.mutators, setter.Set(k.parser, pathValueList)...)
+		mutators, err := setter.Set(k.parser, pathValueList)
+		if err != nil {
+			k.err = errors.Join(k.err, err)
+		}
+		k.mutators = append(k.mutators, mutators...)
 		return k
 	}
 }
 
 func (k *knoa[T]) Set(args ...any) Knoa[T] {
 	pathValueList := sanitizer.SanitizePathValueList(k.strictMode, args...)
-	k.mutators = append(k.mutators, mutator.NewOperation().Set(k.parser, pathValueList)...)
+	mutators, err := mutator.NewOperation().Set(k.parser, pathValueList)
+	if err != nil {
+		k.err = errors.Join(k.err, err)
+	}
+	k.mutators = append(k.mutators, mutators...)
 	return k
 }
 
 func (k *knoa[T]) Unset(args ...string) Knoa[T] {
-	k.mutators = append(k.mutators, mutator.NewOperation().Unset(k.parser, args)...)
+	mutators, err := mutator.NewOperation().Unset(k.parser, args)
+	if err != nil {
+		k.err = errors.Join(k.err, err)
+	}
+	k.mutators = append(k.mutators, mutators...)
 	return k
 }
 
 func (k *knoa[T]) Apply(args ...any) Knoa[T] {
 	pathFuncList := sanitizer.SanitizePathFuncList(k.strictMode, args...)
-	k.mutators = append(k.mutators, mutator.NewOperation().Apply(k.parser, pathFuncList)...)
+	mutators, err := mutator.NewOperation().Apply(k.parser, pathFuncList)
+	if err != nil {
+		k.err = errors.Join(k.err, err)
+	}
+	k.mutators = append(k.mutators, mutators...)
 	return k
 }
 
@@ -133,24 +150,24 @@ func (k *knoa[T]) Out() T {
 			}
 			arrayIn, err := m.Child().ToArray(in)
 			if err != nil {
-				k.err = err
+				k.err = errors.Join(k.err, err)
 				break
 			}
 			content, _ = reflect.ValueOf(arrayIn).Interface().(T)
 		case reflect.Map:
 			in, ok := reflect.ValueOf(content).Interface().(map[string]any)
 			if !ok {
-				k.err = fmt.Errorf("unsupported map type")
+				k.err = errors.Join(k.err, fmt.Errorf("unsupported map type"))
 				break
 			}
 			mapIn, err := m.Child().ToMap(in)
 			if err != nil {
-				k.err = err
+				k.err = errors.Join(k.err, err)
 				break
 			}
 			content, _ = reflect.ValueOf(mapIn).Interface().(T)
 		default:
-			k.err = fmt.Errorf("unsupporteed output type '%s'", reflect.TypeOf(content).Kind())
+			k.err = errors.Join(k.err, fmt.Errorf("unsupporteed output type '%s'", reflect.TypeOf(content).Kind()))
 		}
 	}
 	return content
@@ -159,20 +176,20 @@ func (k *knoa[T]) Out() T {
 func (k *knoa[T]) YAML(opts ...outputter.YAMLOpt) string {
 	content := k.Out()
 	str, err := outputter.NewYAML(opts...).Marshal(content)
-	k.err = err
+	k.err = errors.Join(k.err, err)
 	return str
 }
 
 func (k *knoa[T]) JSON(opts ...outputter.JSONOpt) string {
 	content := k.Out()
 	str, err := outputter.NewJSON(opts...).Marshal(content)
-	k.err = err
+	k.err = errors.Join(k.err, err)
 	return str
 }
 
 func (k *knoa[T]) To(out interface{}) {
 	content := k.Out()
-	k.err = mapstructure.Decode(content, out)
+	k.err = errors.Join(k.err, mapstructure.Decode(content, out))
 }
 
 func (k *knoa[T]) Error() error {

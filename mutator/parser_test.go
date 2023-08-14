@@ -205,7 +205,7 @@ func Test_parser_parse(t *testing.T) {
 			if tt.panicked {
 				assert.Panics(t, func() { p.Parse(tt.args.pathExpr) }, "The execution should end panicking")
 			} else {
-				res := p.Parse(tt.args.pathExpr)
+				res, _ := p.Parse(tt.args.pathExpr)
 				assertParsedElements(t, tt.want, res)
 			}
 		})

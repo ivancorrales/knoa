@@ -76,4 +76,5 @@ func main() {
 	k.To(&person)
 	fmt.Println(person)
 	// {John 23 [{Bob 40 []}]}
+
 }
