@@ -8,7 +8,7 @@ import (
 
 func ExampleArrays() {
 	k := knoa.Array().Set("[1]", []string{"red", "blue", "green"}, "[2].firstname", "John")
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	k.Set("[0]", struct {
 		FullName  string `structs:"fullName"`
 		RoleLevel int    `structs:"roleLevel"`
@@ -16,9 +16,9 @@ func ExampleArrays() {
 		"Senior Developer",
 		3,
 	})
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	k.Set("[0].enabled", false, "[2].firstname", "Jane")
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	// Output:
 	// [null,["red","blue","green"],{"firstname":"John"}]
 	// [{"fullName":"Senior Developer","roleLevel":3},["red","blue","green"],{"firstname":"John"}]
@@ -34,13 +34,13 @@ type Person struct {
 func (p Person) String() string {
 	str := fmt.Sprintf("%s -> %d", p.Firstname, p.Age)
 	if p.Siblings != nil {
-		return fmt.Sprintf("%s siblings[%s]", str, p.Siblings)
+		return fmt.Sprintf("%s siblings[%v]", str, p.Siblings)
 	}
 	return str
 }
 
 func ExampleArrayOfObjects() {
-	k := knoa.Load[[]any]([]any{
+	k := knoa.FromArray([]any{
 		Person{
 			Firstname: "Jane",
 			Age:       20,
@@ -51,8 +51,8 @@ func ExampleArrayOfObjects() {
 		Age:       23,
 	}, "[2].firstname", "John")
 	var output []Person
-	err := k.To(&output)
-	if err != nil {
+	k.To(&output)
+	if err := k.Error(); err != nil {
 		panic(err.Error())
 	}
 	for i := range output {
@@ -66,7 +66,7 @@ func ExampleArrayOfObjects() {
 
 func ExampleMap() {
 	k := knoa.Map().Set("firstname", "John", "age", 20)
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	k.Set("siblings", []Person{
 		{
 			Firstname: "Tim",
@@ -76,9 +76,9 @@ func ExampleMap() {
 			Age:       40,
 		},
 	})
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	k.Set("age", 23, "siblings[1].age", 39)
-	fmt.Println(k.String())
+	fmt.Println(k.JSON())
 	var person Person
 	k.To(&person)
 	fmt.Println(person)

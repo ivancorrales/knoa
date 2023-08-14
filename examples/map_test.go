@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/ivancorrales/knoa"
-	"github.com/ivancorrales/knoa/mapifier"
 )
 
 // Basic showcase
@@ -23,14 +22,14 @@ func ExampleFromScratchWithStrictModeEnabled() {
 			fmt.Println(r)
 		}
 	}()
-	knoa.Map(mapifier.WithStrictMode(true)).Set("firstname.$", "Jane").JSON()
+	knoa.Map(knoa.WithStrictMode(true)).Set("firstname.$", "Jane").JSON()
 	// Output:
 	// invalid Path  'firstname.$'. Path doesn't match defined format
 }
 
 // Ignore those attributes that don't match the provided format
 func ExampleFromScratchWithAttributeNameFormat() {
-	out := knoa.Map(mapifier.WithAttributeNameFormat("person-(.*)")).Set("person-firstname", "Jane", "lastname", "Doe").JSON()
+	out := knoa.Map(knoa.WithAttributeNameFormat("person-(.*)")).Set("person-firstname", "Jane", "lastname", "Doe").JSON()
 	fmt.Println(out)
 	// Output:
 	// {"person-firstname":"Jane"}
@@ -99,7 +98,7 @@ func ExampleWithFuncPrefix() {
 	}{
 		32, "Tim",
 	})
-	k = k.With(mapifier.WithFuncPrefix(strings.ToUpper))("gender", "female")
+	k = k.With(knoa.WithFuncPrefix(strings.ToUpper))("gender", "female")
 
 	out := k.JSON()
 	fmt.Println(out)
@@ -114,7 +113,7 @@ func ExampleWithPrefix() {
 	}{
 		32, "Tim",
 	})
-	k = k.With(mapifier.WithStringPrefix("birth"))("Place", "Map York", "Date", "07/10/1984")
+	k = k.With(knoa.WithStringPrefix("birth"))("Place", "Map York", "Date", "07/10/1984")
 
 	out := k.JSON()
 	fmt.Println(out)
@@ -138,7 +137,7 @@ func ExampleArrayIndexes() {
 			},
 		},
 	}
-	k := knoa.Load(initialValue)
+	k := knoa.FromMap(initialValue)
 	k = k.Set("siblings[1].age", 20)
 	out := k.JSON()
 	fmt.Println(out)
@@ -182,7 +181,7 @@ func ExampleRootArrayWithSubArrays() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	k := knoa.Load(inputValues)
+	k := knoa.FromArray(inputValues)
 	k.Set("[0].siblings", []string{
 		"John", "Jane",
 	})
@@ -201,7 +200,7 @@ func ExampleRootArrayWithSubArraysUnset() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	k := knoa.Load(inputValues)
+	k := knoa.FromArray(inputValues)
 	k.Set("[0].siblings", []string{
 		"John", "Jane",
 	})
@@ -224,7 +223,7 @@ func ExampleRootArrayWithSubArraysAndOverrideTypes() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	k := knoa.Load(inputValues)
+	k := knoa.FromArray(inputValues)
 
 	k.Set("[0]", []string{
 		"John", "Jane",
@@ -244,7 +243,7 @@ func ExampleRootArrayWithSubArraysAndOverrideTypesUnset() {
 		Age:       33,
 		Firstname: "Tim",
 	})
-	k := knoa.Load(inputValues)
+	k := knoa.FromArray(inputValues)
 
 	k.Set("[0]", []string{
 		"John", "Jane",

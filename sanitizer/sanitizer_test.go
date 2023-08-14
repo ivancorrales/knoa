@@ -1,4 +1,4 @@
-package internal
+package sanitizer
 
 import (
 	"reflect"
@@ -117,13 +117,10 @@ func Test_sanitizer_sanitize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Sanitizer{
-				Strict: tt.fields.strict,
-			}
 			if tt.panicked {
-				assert.Panics(t, func() { s.SanitizePathValueList(tt.args.args...) }, "The execution should end panicking")
+				assert.Panics(t, func() { SanitizePathValueList(tt.fields.strict, tt.args.args...) }, "The execution should end panicking")
 			} else {
-				if got := s.SanitizePathValueList(tt.args.args...); !reflect.DeepEqual(got, tt.want) {
+				if got := SanitizePathValueList(tt.fields.strict, tt.args.args...); !reflect.DeepEqual(got, tt.want) {
 					t.Errorf("SanitizePathValueList() = %v, want %v", got, tt.want)
 				}
 			}

@@ -1,4 +1,4 @@
-package internal
+package mutator
 
 import (
 	"fmt"
@@ -37,7 +37,6 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 		attrMatch := p.AttributeRegExp.FindStringSubmatch(pathExpr)
 		if attrMatch != nil {
 			return &Mutator{
-				// kind: Node,
 				child: &Mutator{
 					name: pathExpr,
 				},
@@ -45,9 +44,8 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 		}
 		if p.Strict {
 			log.Panicf("invalid Path  '%v'. Path doesn't match defined format", pathExpr)
-		} else {
-			return nil
 		}
+		return nil
 	}
 	subMatchMap := map[string]string{}
 	for i, name := range p.RegExp.SubexpNames() {
@@ -78,8 +76,7 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 				}
 			}
 		}
-		// parent.kind = Array
-		parent.addToBottom(m)
+		addToBottom(parent, m)
 		return parent
 	}
 	if parentExpr != "" {
@@ -94,8 +91,16 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 				name: parentExpr,
 			}
 		}
-		parent.addToBottom(m)
+		addToBottom(parent, m)
 		return parent
 	}
 	return m
+}
+
+func addToBottom(parent *Mutator, child *Mutator) {
+	if parent.child == nil {
+		parent.child = child
+	} else {
+		addToBottom(parent.Child(), child)
+	}
 }

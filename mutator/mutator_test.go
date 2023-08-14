@@ -1,7 +1,6 @@
-package internal
+package mutator
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,145 +52,6 @@ func Test_ensureSizeOfArray(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, ensureSizeOfArray(tt.args.arrayContent, tt.args.indexStr), "ensureSizeOfArray(%v, %v)", tt.args.arrayContent, tt.args.indexStr)
-		})
-	}
-}
-
-func Test_mutator_addToBottom(t *testing.T) {
-	type fields struct {
-		name  string
-		index string
-		child *Mutator
-
-		value any
-	}
-	type args struct {
-		child *Mutator
-	}
-	tests := []struct {
-		name     string
-		fields   fields
-		args     args
-		expected *Mutator
-	}{
-		{
-			name: "The root doesn't have a  child",
-			fields: fields{
-				name:  "root",
-				child: nil,
-				value: 20,
-			},
-			args: args{
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-				},
-			},
-			expected: &Mutator{
-				name: "root",
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-				},
-				value: 20,
-			},
-		},
-		{
-			name: "The root has a child",
-			fields: fields{
-				name: "root",
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-				},
-				value: 20,
-			},
-			args: args{
-				child: &Mutator{
-					name:  "child",
-					value: 22,
-				},
-			},
-			expected: &Mutator{
-				name: "root",
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-					child: &Mutator{
-						name:  "child",
-						value: 22,
-					},
-				},
-				value: 20,
-			},
-		},
-		{
-			name: "The root has two levels child",
-			fields: fields{
-				name: "root",
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-					child: &Mutator{
-						name:  "child",
-						value: 22,
-					},
-				},
-				value: 20,
-			},
-			args: args{
-				child: &Mutator{
-					name:  "child",
-					value: 23,
-				},
-			},
-			expected: &Mutator{
-				name: "root",
-				child: &Mutator{
-					name:  "child",
-					value: 21,
-					child: &Mutator{
-						name:  "child",
-						value: 22,
-						child: &Mutator{
-							name:  "child",
-							value: 23,
-						},
-					},
-				},
-				value: 20,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := &Mutator{
-				name:  tt.fields.name,
-				index: tt.fields.index,
-				child: tt.fields.child,
-
-				value: tt.fields.value,
-			}
-			m.addToBottom(tt.args.child)
-			a := m
-			b := tt.expected
-			for {
-				if a == nil {
-					if b != nil {
-						assert.Errorf(t, errors.New("unexpected result"), "Expected %#v and obtained %#v", tt.expected, m)
-					}
-					return
-				}
-				if b == nil {
-					if a != nil {
-						assert.Errorf(t, errors.New("unexpected result"), "Expected %#v and obtained %#v", tt.expected, m)
-					}
-					return
-				}
-				assert.Equal(t, a.value, b.value)
-				a = a.child
-				b = b.child
-			}
 		})
 	}
 }
@@ -316,8 +176,8 @@ func Test_mutator_toArray(t *testing.T) {
 				child: tt.fields.child,
 				value: tt.fields.value,
 			}
-
-			assert.Equalf(t, tt.want, m.ToArray(tt.args.content), "ToArray(%v)", tt.args.content)
+			c, _ := m.ToArray(tt.args.content)
+			assert.Equalf(t, tt.want, c, "ToArray(%v)", tt.args.content)
 		})
 	}
 }
@@ -414,7 +274,8 @@ func Test_mutator_toMap(t *testing.T) {
 				child: tt.fields.child,
 				value: tt.fields.value,
 			}
-			assert.Equalf(t, tt.want, m.ToMap(tt.args.content), "ToMap(%v)", tt.args.content)
+			c, _ := m.ToMap(tt.args.content)
+			assert.Equalf(t, tt.want, c, "ToMap(%v)", tt.args.content)
 		})
 	}
 }
@@ -464,7 +325,7 @@ func Test_mutator_withValue(t *testing.T) {
 
 				value: tt.fields.value,
 			}
-			m.WithValue(tt.args.value)
+			m.value = tt.args.value
 			assert.Equal(t, tt.args.value, m.value)
 		})
 	}

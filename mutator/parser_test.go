@@ -1,4 +1,4 @@
-package internal
+package mutator
 
 import (
 	"regexp"
@@ -217,11 +217,11 @@ func assertParsedElements(t *testing.T, expected *Mutator, got *Mutator) {
 		return
 	}
 	if (expected == nil && got != nil) || (expected != nil && got == nil) {
-		t.Errorf("\nexpected= %s  , \ngot= %s", expected, got)
+		t.Errorf("\nexpected= %v  , \ngot= %v", expected, got)
 		return
 	}
 	if (expected.child == nil && got.child != nil) || (expected.child != nil && got.child == nil) {
-		t.Errorf("\nexpected= %s  , \ngot= %s", expected, got)
+		t.Errorf("\nexpected= %v  , \ngot= %v", expected, got)
 		return
 	}
 	if got.child != nil {
@@ -229,7 +229,7 @@ func assertParsedElements(t *testing.T, expected *Mutator, got *Mutator) {
 		return
 	}
 	if expected.name != got.name || expected.value != got.value || expected.index != got.index {
-		t.Errorf("\nexpected= %s  , got= %s", expected, got)
+		t.Errorf("\nexpected= %v  , got= %v", expected, got)
 		return
 	}
 }
