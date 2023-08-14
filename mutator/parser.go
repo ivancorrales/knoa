@@ -31,7 +31,7 @@ func RegExpsFromAttributeFormat(attributeFormat string) (*regexp.Regexp, *regexp
 	return regexp.MustCompile(regExpStr), regexp.MustCompile(fmt.Sprintf(`^(?P<attribute>%s)$`, attributeFormat))
 }
 
-func (p *Parser) Parse(pathExpr string) *Mutator {
+func (p *Parser) Parse(pathExpr string) (*Mutator, error) {
 	match := p.RegExp.FindStringSubmatch(pathExpr)
 	if match == nil {
 		attrMatch := p.AttributeRegExp.FindStringSubmatch(pathExpr)
@@ -40,12 +40,12 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 				child: &Mutator{
 					name: pathExpr,
 				},
-			}
+			}, nil
 		}
 		if p.Strict {
 			log.Panicf("invalid Path  '%v'. Path doesn't match defined format", pathExpr)
 		}
-		return nil
+		return nil, fmt.Errorf("invalid path '%s'", pathExpr)
 	}
 	subMatchMap := map[string]string{}
 	for i, name := range p.RegExp.SubexpNames() {
@@ -68,8 +68,9 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 	if arrayIndex != "" {
 		m.index = arrayIndex
 		parent := &Mutator{}
+		var err error
 		if parentExpr != "" {
-			parent = p.Parse(parentExpr)
+			parent, err = p.Parse(parentExpr)
 			if parent == nil {
 				parent = &Mutator{
 					name: parentExpr,
@@ -77,7 +78,7 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 			}
 		}
 		addToBottom(parent, m)
-		return parent
+		return parent, err
 	}
 	if parentExpr != "" {
 		if attr != "" {
@@ -85,16 +86,17 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 				m.name = attr[1 : len(attr)-1]
 			}
 		}
-		parent := p.Parse(parentExpr)
+		var err error
+		parent, err := p.Parse(parentExpr)
 		if parent == nil {
 			parent = &Mutator{
 				name: parentExpr,
 			}
 		}
 		addToBottom(parent, m)
-		return parent
+		return parent, err
 	}
-	return m
+	return m, nil
 }
 
 func addToBottom(parent *Mutator, child *Mutator) {

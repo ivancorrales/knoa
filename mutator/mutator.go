@@ -88,13 +88,17 @@ func (m *Mutator) ToMap(content map[string]any) (map[string]any, error) {
 	}
 	mt := *m.Child()
 	c := content[m.name]
+	var ok bool
 	switch reflect.ValueOf(c).Kind() {
 	case reflect.Slice, reflect.Array:
 		var childContent []any
 		if c == nil {
 			childContent = make([]any, 0)
 		} else {
-			childContent, _ = c.([]any)
+			childContent, ok = c.([]any)
+			if !ok {
+				return content, fmt.Errorf("invalid array")
+			}
 		}
 		value, toArrayErr := mt.ToArray(childContent)
 		if toArrayErr != nil {
@@ -102,18 +106,24 @@ func (m *Mutator) ToMap(content map[string]any) (map[string]any, error) {
 		}
 		content[m.name] = value
 	default:
-		var childContent map[string]any
-		if c == nil {
-			childContent = make(map[string]any)
-		} else {
-			childContent, _ = c.(map[string]any)
-		}
-		mt.ToMap(childContent)
 		if m.operation == unsetOp {
 			delete(content, m.name)
 			return content, nil
 		}
-		content[m.name] = childContent
+		var childContent map[string]any
+		if c == nil {
+			childContent = make(map[string]any)
+		} else {
+			childContent, ok = c.(map[string]any)
+			if !ok {
+				return content, fmt.Errorf("invalid array")
+			}
+		}
+		value, toMapErr := mt.ToMap(childContent)
+		if toMapErr != nil {
+			return nil, toMapErr
+		}
+		content[m.name] = value
 	}
 
 	return content, nil
