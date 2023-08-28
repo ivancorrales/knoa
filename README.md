@@ -85,7 +85,7 @@ func main() {
 }
 ```
 
-> The above code can be run at [https://go.dev/play/p/LCkzZSiXbo9](https://go.dev/play/p/LCkzZSiXbo9)  
+> The above code can be run at [https://go.dev/play/p/TXEa77XoX8s](https://go.dev/play/p/TXEa77XoX8s)  
 
 ## Getting started
 
